@@ -4,23 +4,20 @@ import java.util.List;
 
 import com.zkt.zktspringjpa.model.MyUserInfo;
 import com.zkt.zktspringjpa.repository.UserInfoRepository;
-import com.zkt.zktspringjpa.sdk.terminal.ZKTerminal;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
+
+@Service
 public class UserInfoService {
 
-    private final ZKTerminal terminal;
-    private final UserInfoRepository userInfoRepository;
+    @Autowired
+    private UserInfoRepository userInfoRepository;
 
-    public UserInfoService(ZKTerminal terminal, UserInfoRepository userInfoRepository) {
-        this.terminal = terminal;
-        this.userInfoRepository = userInfoRepository;
-    }
-
-    public List<MyUserInfo> getUsersFromTerminal() throws Exception {
-        System.out.println("Getting users from terminal");
-        return MyUserInfo.convertList(terminal.getAllUsers());
+    public UserInfoService() {
     }
 
     public void insertMultipleUsers(List<MyUserInfo> users) {
@@ -29,12 +26,11 @@ public class UserInfoService {
 
         System.out.println("Getting all users from database");
         List<MyUserInfo> allUsers = this.userInfoRepository.findAll();
-        ;
         for (MyUserInfo user : users) {
             boolean userExists = false;
 
             for (MyUserInfo existingUser : allUsers) {
-                if (existingUser.getUid() == user.getUid()) {
+                if (Objects.equals(existingUser.getUid(), user.getUid())) {
                     userExists = true;
                     break;
                 }
@@ -49,4 +45,7 @@ public class UserInfoService {
         this.userInfoRepository.saveAll(usersData);
     }
 
+    public List<MyUserInfo> getAllUsers() {
+        return this.userInfoRepository.findAll();
+    }
 }

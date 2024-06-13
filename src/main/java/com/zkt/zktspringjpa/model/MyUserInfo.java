@@ -1,10 +1,7 @@
 package com.zkt.zktspringjpa.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
@@ -17,18 +14,24 @@ import com.zkt.zktspringjpa.sdk.commands.UserInfo;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "user")
+@Table(name = "staff")
 public class MyUserInfo {
 
     @Id
-    private int uid;
+    private Integer uid;
 
     @Enumerated(EnumType.STRING)
     private UserRoleEnum role;
     private String password;
+
+//    @Column(columnDefinition = "varchar(50) not null")
     private String name;
     private long cardno;
-    private String userid;
+
+    // userId is int in the database
+    @JsonProperty("user_id")
+    private String userId;
+
     private String groupNumber;
     private int userTimeZoneFlag;
     private int timeZone1;
@@ -40,12 +43,15 @@ public class MyUserInfo {
     public static MyUserInfo convertToModel(UserInfo userInfo) {
         MyUserInfo myUserInfo = new MyUserInfo();
 
+
+
         myUserInfo.setUid(userInfo.getUid());
         myUserInfo.setRole(userInfo.getRole());
         myUserInfo.setPassword(userInfo.getPassword());
         myUserInfo.setName(userInfo.getName());
         myUserInfo.setCardno(userInfo.getCardno());
-        myUserInfo.setUserid(userInfo.getUserid());
+        myUserInfo.setUserId(String.valueOf(userInfo.getUserid()).replaceAll("\\P{Print}", ""));
+//        myUserInfo.setUserId(userInfo.getUserid());
         myUserInfo.setGroupNumber(userInfo.getGroupNumber());
         myUserInfo.setUserTimeZoneFlag(userInfo.getUserTimeZoneFlag());
         myUserInfo.setTimeZone1(userInfo.getTimeZone1());

@@ -3,36 +3,22 @@ package com.zkt.zktspringjpa.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.zkt.zktspringjpa.model.MyAttendanceRecord;
 import com.zkt.zktspringjpa.repository.AttendanceRecordRepository;
-import com.zkt.zktspringjpa.sdk.terminal.ZKTerminal;
+
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
 
-public class AttendanceRecordService {
-    private final ZKTerminal terminal;
-    private final AttendanceRecordRepository attendanceRecordRepository;
+@Service
+public class MyAttendanceRecordService {
 
-    public AttendanceRecordService(ZKTerminal terminal, AttendanceRecordRepository attendanceRecordRepository) {
-        this.terminal = terminal;
-        this.attendanceRecordRepository = attendanceRecordRepository;
-    }
+    @Autowired
+    private AttendanceRecordRepository attendanceRecordRepository;
 
-    public AttendanceRecordService(AttendanceRecordRepository attendanceRecordRepository) {
-        this.terminal = null;
-        this.attendanceRecordRepository = attendanceRecordRepository;
-    }
-
-    public AttendanceRecordService() {
-        this.terminal = null;
-        this.attendanceRecordRepository = null;
-    }
-
-    public List<MyAttendanceRecord> getAttendanceRecordsFromTerminal() throws Exception {
-        System.out.println("Getting attendance records from terminal");
-        return MyAttendanceRecord.convertList(terminal.getAttendanceRecords());
+    public MyAttendanceRecordService() {
     }
 
     public void insertMultipleAttendanceRecords(List<MyAttendanceRecord> attendanceRecords) {
@@ -42,10 +28,8 @@ public class AttendanceRecordService {
         System.out.println("Getting latest attendance record");
         List<MyAttendanceRecord> latestAttendanceRecord = this.attendanceRecordRepository.getLatestAttendanceRecord();
 
-        if (latestAttendanceRecord.size() == 0) {
-            for (MyAttendanceRecord attendance_record : attendanceRecords) {
-                attendance_recordData.add(attendance_record);
-            }
+        if (latestAttendanceRecord.isEmpty()) {
+            attendance_recordData.addAll(attendanceRecords);
         } else {
 
             for (MyAttendanceRecord attendance_record : attendanceRecords) {
@@ -56,7 +40,7 @@ public class AttendanceRecordService {
                 LocalDateTime latestRecordDateTime = LocalDateTime.parse(latestAttendanceRecord.get(0).getRecordTime(),
                         formatter);
 
-                if (newRecordDateTime.compareTo(latestRecordDateTime) <= 0) {
+                if (!newRecordDateTime.isAfter(latestRecordDateTime)) {
                     continue;
                 }
 
@@ -69,7 +53,19 @@ public class AttendanceRecordService {
         this.attendanceRecordRepository.saveAll(attendance_recordData);
     }
 
-    public List<MyAttendanceRecord> getAttendanceRecords() {
+    public List<MyAttendanceRecord> getAllMyAttendanceRecords() {
         return this.attendanceRecordRepository.findAll();
+    }
+
+    public List<MyAttendanceRecord> getMyAttendanceRecordsForDateRange(String fromDate, String toDate) {
+        return this.attendanceRecordRepository.getAttendanceDataForDateRange(fromDate, toDate);
+    }
+
+//    public List<MyAttendanceRecord> getMyAttendanceRecordsForUser(String userId) {
+//        return this.attendanceRecordRepository.getAttendanceDataForUser(userId);
+//    }
+
+    public List<MyAttendanceRecord> getMyAttendanceRecordsForDateRangeAndUserIds(String fromDate, String toDate, List<String> userIds) {
+        return this.attendanceRecordRepository.getAttendanceDataForDateRangeAndUserIds(fromDate, toDate, userIds);
     }
 }

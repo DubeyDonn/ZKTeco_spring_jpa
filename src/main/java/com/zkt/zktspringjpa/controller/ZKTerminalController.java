@@ -7,29 +7,22 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.zkt.zktspringjpa.model.Response;
-import com.zkt.zktspringjpa.service.ZKService;
+import com.zkt.zktspringjpa.model.response.Response;
+import com.zkt.zktspringjpa.service.ZKTerminalService;
 
 @RestController
-@RequestMapping({ "/zk" })
+@RequestMapping({ "/api" })
 @CrossOrigin
-public class ZKController {
+public class ZKTerminalController {
 
     @Autowired
-    private ZKService zkService;
-
-    // private final AttendanceRecordRepository attendanceRecordRepository;
-
-    // @Autowired
-    // public ZKController(AttendanceRecordRepository attendanceRecordRepository) {
-    // this.attendanceRecordRepository = attendanceRecordRepository;
-    // }
+    private ZKTerminalService zkTerminalService;
 
     @GetMapping({ "/connect" })
     public ResponseEntity<Response<String>> connect() {
         System.out.println("Connecting to ZK terminal");
         try {
-            this.zkService.connect();
+            this.zkTerminalService.connect();
             Response<String> response = Response.<String>builder().success(true).message("Connected to ZK terminal")
                     .build();
             return ResponseEntity.ok(response);
@@ -44,7 +37,7 @@ public class ZKController {
     public ResponseEntity<Response<String>> open() {
         System.out.println("Creating backup");
         try {
-            this.zkService.createBackup();
+            this.zkTerminalService.createBackup();
             Response<String> response = Response.<String>builder().success(true).message("Backup created successfully")
                     .build();
             return ResponseEntity.ok(response);
@@ -59,7 +52,7 @@ public class ZKController {
     public ResponseEntity<Response<String>> close() {
         System.out.println("Disconnecting from ZK terminal");
         try {
-            this.zkService.disconnect();
+            this.zkTerminalService.disconnect();
             Response<String> response = Response.<String>builder().success(true)
                     .message("Disconnected from ZK terminal")
                     .build();
@@ -75,7 +68,7 @@ public class ZKController {
     public ResponseEntity<Response<String>> sync() {
         System.out.println("Syncing attendance records");
         try {
-            this.zkService.sync();
+            this.zkTerminalService.sync();
             Response<String> response = Response.<String>builder().success(true).message("Attendance records synced")
                     .build();
             return ResponseEntity.ok(response);

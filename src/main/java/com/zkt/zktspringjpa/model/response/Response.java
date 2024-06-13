@@ -1,4 +1,4 @@
-package com.zkt.zktspringjpa.model;
+package com.zkt.zktspringjpa.model.response;
 
 import lombok.*;
 

@@ -1,5 +1,6 @@
 package com.zkt.zktspringjpa.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -27,16 +28,18 @@ public class MyAttendanceRecord {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private int userSN;
-    private String userID;
+    private int userSN;  //usersn
+    private String userId; //user_id
 
     @Enumerated(EnumType.STRING)
     private AttendanceTypeEnum verifyType;
 
+    @Column(nullable = false)
     private String recordTime;
 
     @Enumerated(EnumType.STRING)
     private AttendanceStateEnum verifyState;
+
 
     // Method to convert a single AttendanceRecord to MyAttendanceRecord
     public static MyAttendanceRecord convertToModel(AttendanceRecord sdkRecord) {
@@ -44,7 +47,7 @@ public class MyAttendanceRecord {
         MyAttendanceRecord modelRecord = new MyAttendanceRecord();
 
         modelRecord.setUserSN(sdkRecord.getUserSN());
-        modelRecord.setUserID(sdkRecord.getUserID());
+        modelRecord.setUserId(sdkRecord.getUserID());
         modelRecord.setVerifyType(sdkRecord.getVerifyType());
         modelRecord.setRecordTime(sdkRecord.getRecordTime());
         modelRecord.setVerifyState(sdkRecord.getVerifyState());
