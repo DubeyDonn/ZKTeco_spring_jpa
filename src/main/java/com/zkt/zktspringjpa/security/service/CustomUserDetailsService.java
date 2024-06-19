@@ -5,8 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.zkt.zktspringjpa.model.SystemUser;
-import com.zkt.zktspringjpa.repository.SystemUserRepository;
+import com.zkt.zktspringjpa.model.TableUser;
+import com.zkt.zktspringjpa.repository.TableUserRepository;
 import com.zkt.zktspringjpa.security.jwt.JwtAuthenticationFilter;
 
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,33 +17,20 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 public class CustomUserDetailsService implements UserDetailsService {
 
     @Autowired
-    private SystemUserRepository userRepository;
+    private TableUserRepository userRepository;
 
-    private Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+    private final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        logger.info("Username : " + username);
-
-        SystemUser user = userRepository.findByUsername(username)
+        TableUser tableUser = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 
-        logger.info("User found with username: " + username);
+        logger.info("User found with username: {}", username);
 
-        System.out.println("User found with username: " + username);
-
-        // Optional<SystemUser> userOptional = userRepository.findByUsername(username);
-
-        // SystemUser user = userOptional.orElse(null);
-
-        // return new
-        // org.springframework.security.core.userdetails.User(user.getUsername(),
-        // user.getPassword(),
-        // new ArrayList<>());
-
-        return CustomUserDetails.build(user);// spring security uses this user to authenticate the
-                                             // user
+        return CustomUserDetails.build(tableUser);// spring security uses this user to authenticate the
+                                                  // user
 
     }
 

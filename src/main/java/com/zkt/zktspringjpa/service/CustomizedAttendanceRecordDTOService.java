@@ -1,9 +1,10 @@
 package com.zkt.zktspringjpa.service;
 
 
-import com.zkt.zktspringjpa.model.MyAttendanceRecord;
-import com.zkt.zktspringjpa.model.dto.AttendanceRecordDTO;
-import com.zkt.zktspringjpa.repository.UserInfoRepository;
+import com.zkt.zktspringjpa.model.TableAttendanceRecord;
+import com.zkt.zktspringjpa.model.TableStaff;
+import com.zkt.zktspringjpa.model.dto.CustomizedAttendanceRecordDTO;
+import com.zkt.zktspringjpa.repository.TableStaffRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,45 +14,48 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class AttendanceRecordDTOService {
+public class CustomizedAttendanceRecordDTOService {
 
     @Autowired
-    private MyAttendanceRecordService myAttendanceRecordService;
+    private ShiftDTOService shiftDTOService;
 
     @Autowired
-    private UserInfoRepository userInfoRepository;
+    private TableAttendanceRecordService tableAttendanceRecordService;
 
-    public AttendanceRecordDTOService() {
+    @Autowired
+    private TableStaffRepository tableStaffRepository;
+
+    public CustomizedAttendanceRecordDTOService() {
     }
 
-    public List<AttendanceRecordDTO> getAllAttendanceRecordDTOs() {
-        List<MyAttendanceRecord> attendanceRecords = myAttendanceRecordService.getAllMyAttendanceRecords();
+    public List<CustomizedAttendanceRecordDTO> getAllCustomizedAttendanceRecordDTOs() {
+        List<TableAttendanceRecord> attendanceRecords = tableAttendanceRecordService.getAllTableAttendanceRecords();
         return this
-                .buildAttendanceRecordDTOsFromMyAttendanceRecords(attendanceRecords);
+                .buildCustomizedAttendanceRecordDTOsFromMyAttendanceRecords(attendanceRecords);
     }
 
-    public List<AttendanceRecordDTO> getAttendanceRecordDTOsForDateRange(String fromDate, String toDate) {
-        List<MyAttendanceRecord> attendanceRecords = myAttendanceRecordService.getMyAttendanceRecordsForDateRange(fromDate, toDate);
+    public List<CustomizedAttendanceRecordDTO> getCustomizedAttendanceRecordDTOsForDateRange(String fromDate, String toDate) {
+        List<TableAttendanceRecord> attendanceRecords = tableAttendanceRecordService.getTableAttendanceRecordsForDateRange(fromDate, toDate);
 
-        return this.buildAttendanceRecordDTOsFromMyAttendanceRecords(attendanceRecords);
+        return this.buildCustomizedAttendanceRecordDTOsFromMyAttendanceRecords(attendanceRecords);
     }
 
-    public List<AttendanceRecordDTO> getAttendanceRecordDTOsForDateRangeAndUserIds(String fromDate, String toDate, List<String> userIds) {
-        List<MyAttendanceRecord> attendanceRecords = myAttendanceRecordService.getMyAttendanceRecordsForDateRangeAndUserIds(fromDate, toDate, userIds);
+    public List<CustomizedAttendanceRecordDTO> getCustomizedAttendanceRecordDTOsForDateRangeAndUserIds(String fromDate, String toDate, List<String> userIds) {
+        List<TableAttendanceRecord> attendanceRecords = tableAttendanceRecordService.getTableAttendanceRecordsForDateRangeAndUserIds(fromDate, toDate, userIds);
 
-        return this.buildAttendanceRecordDTOsFromMyAttendanceRecords(attendanceRecords);
+        return this.buildCustomizedAttendanceRecordDTOsFromMyAttendanceRecords(attendanceRecords);
     }
 
 
     // main join function that joins users data with the attendance records
-    public List<AttendanceRecordDTO> buildAttendanceRecordDTOsFromMyAttendanceRecords(
-            List<MyAttendanceRecord> attendanceRecords) {
+    public List<CustomizedAttendanceRecordDTO> buildCustomizedAttendanceRecordDTOsFromMyAttendanceRecords(
+            List<TableAttendanceRecord> attendanceRecords) {
 
         // Map of (day and map of (user and list of records))
-        Map<String, Map<String, List<MyAttendanceRecord>>> recordsByDayAndUser = new HashMap<>();
+        Map<String, Map<String, List<TableAttendanceRecord>>> recordsByDayAndUser = new HashMap<>();
 
         // Group records by day and user
-        for (MyAttendanceRecord record : attendanceRecords) {
+        for (TableAttendanceRecord record : attendanceRecords) {
             String day = record.getRecordTime().split(" ")[0];
             String userId = record.getUserId();
 
@@ -61,24 +65,32 @@ public class AttendanceRecordDTOService {
             recordsByDayAndUser.get(day).get(userId).add(record);
         }
 
-        List<AttendanceRecordDTO> attendanceRecordDTOs = new ArrayList<>();
+        List<CustomizedAttendanceRecordDTO> customizedAttendanceRecordDTOS = new ArrayList<>();
 
         // Build AttendanceRecordDTOs
-        for (Map.Entry<String, Map<String, List<MyAttendanceRecord>>> dayEntry : recordsByDayAndUser.entrySet()) {
+        for (Map.Entry<String, Map<String, List<TableAttendanceRecord>>> dayEntry : recordsByDayAndUser.entrySet()) {
             String day = dayEntry.getKey();
-            Map<String, List<MyAttendanceRecord>> recordsByUser = dayEntry.getValue();
+            Map<String, List<TableAttendanceRecord>> recordsByUser = dayEntry.getValue();
 
-            for (Map.Entry<String, List<MyAttendanceRecord>> userEntry : recordsByUser.entrySet()) {
+            for (Map.Entry<String, List<TableAttendanceRecord>> userEntry : recordsByUser.entrySet()) {
                 String userId = userEntry.getKey();
-                List<MyAttendanceRecord> recordsForUser = userEntry.getValue();
+                List<TableAttendanceRecord> recordsForUser = userEntry.getValue();
 
-                AttendanceRecordDTO dto = new AttendanceRecordDTO();
+                CustomizedAttendanceRecordDTO dto = new CustomizedAttendanceRecordDTO();
                 dto.setDay(day);
 
-                String username = this.userInfoRepository.findNameByUserID(userId);
+                TableStaff tableStaff = this.tableStaffRepository.findById(userId).orElse(null);
 
+                //check if the user is in the tableStaff
+                if (tableStaff == null) {
+                    continue;
+                }
+
+                String username = tableStaff.getName();
+                dto.setShift(shiftDTOService.buildShiftDTOFromShift(tableStaff.getShift()));
                 dto.setUsername(username);
                 dto.setUserId(userId);
+
 
                 List<String> checkInTimes = new ArrayList<>();
                 List<String> checkOutTimes = new ArrayList<>();
@@ -87,7 +99,7 @@ public class AttendanceRecordDTOService {
                 List<String> otInTimes = new ArrayList<>();
                 List<String> otOutTimes = new ArrayList<>();
 
-                for (MyAttendanceRecord record : recordsForUser) {
+                for (TableAttendanceRecord record : recordsForUser) {
                     switch (record.getVerifyState()) {
                         case CHECK_IN:
                             checkInTimes.add(record.getRecordTime());
@@ -117,12 +129,12 @@ public class AttendanceRecordDTOService {
                 dto.setOtInTime(otInTimes);
                 dto.setOtOutTime(otOutTimes);
 
-                attendanceRecordDTOs.add(dto);
+                customizedAttendanceRecordDTOS.add(dto);
             }
         }
 
         //sort by day and check in time
-        attendanceRecordDTOs.sort((a, b) -> {
+        customizedAttendanceRecordDTOS.sort((a, b) -> {
             if (a.getDay().equals(b.getDay())) {
                 if (a.getCheckInTime().isEmpty() && b.getCheckInTime().isEmpty()) {
                     return 0; // Both lists are empty, consider them equal
@@ -138,7 +150,7 @@ public class AttendanceRecordDTOService {
             }
         });
 
-        return attendanceRecordDTOs;
+        return customizedAttendanceRecordDTOS;
     }
 
 }

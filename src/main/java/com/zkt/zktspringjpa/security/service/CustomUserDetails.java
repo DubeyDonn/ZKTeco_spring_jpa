@@ -3,12 +3,13 @@ package com.zkt.zktspringjpa.security.service;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+
+import com.zkt.zktspringjpa.model.TableUser;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.zkt.zktspringjpa.model.SystemUser;
 
 /**
  * This class is created so that we can provide our own implementation of
@@ -38,7 +39,7 @@ public class CustomUserDetails implements UserDetails {
         this.authorities = authorities;
     }
 
-    public static CustomUserDetails build(SystemUser user) {
+    public static CustomUserDetails build(TableUser user) {
         // List<GrantedAuthority> authorities = user.getRoles().stream()
         // .map(role -> new SimpleGrantedAuthority(role.getName().name()))
         // .collect(Collectors.toList());
@@ -56,8 +57,8 @@ public class CustomUserDetails implements UserDetails {
         return authorities;
     }
 
-    // public SystemUser getUser() {
-    // return new SystemUser(id, authorities, name, username, password);
+    // public TableUser getUser() {
+    // return new TableUser(id, authorities, name, username, password);
     // }
 
     public Long getId() {

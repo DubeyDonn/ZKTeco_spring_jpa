@@ -2,6 +2,7 @@ package com.zkt.zktspringjpa.security.jwt;
 
 import java.io.IOException;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +28,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+    private final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     @Autowired
     private JwtHelper jwtHelper;
@@ -38,7 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     // This method is used to authenticate the user using the token
     protected void doFilterInternal(@SuppressWarnings("null") HttpServletRequest request,
-            @SuppressWarnings("null") HttpServletResponse response, @SuppressWarnings("null") FilterChain filterChain)
+                                    @SuppressWarnings("null") @NotNull HttpServletResponse response, @SuppressWarnings("null") @NotNull FilterChain filterChain)
             throws ServletException, IOException {
 
         logger.info("Processing authentication for '{}'", request.getRequestURL());

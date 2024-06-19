@@ -2,6 +2,7 @@ package com.zkt.zktspringjpa.model.dto;
 
 import java.util.List;
 
+import com.zkt.zktspringjpa.model.TableShift;
 import lombok.*;
 
 @Setter
@@ -9,7 +10,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AttendanceRecordDTO {
+public class CustomizedAttendanceRecordDTO {
     private String day;
     private String username;
     private String userId;
@@ -19,4 +20,5 @@ public class AttendanceRecordDTO {
     private List<String> breakOutTime;
     private List<String> otInTime;
     private List<String> otOutTime;
+    private ShiftDTO shift;
 }

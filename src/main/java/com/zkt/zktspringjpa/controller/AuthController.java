@@ -1,7 +1,5 @@
 package com.zkt.zktspringjpa.controller;
 
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +16,7 @@ import com.zkt.zktspringjpa.model.dto.AuthDTO;
 import com.zkt.zktspringjpa.model.dto.SystemUserDTO;
 import com.zkt.zktspringjpa.model.request.AuthRequest;
 import com.zkt.zktspringjpa.model.response.Response;
-import com.zkt.zktspringjpa.repository.SystemUserRepository;
+import com.zkt.zktspringjpa.repository.TableUserRepository;
 import com.zkt.zktspringjpa.security.jwt.JwtHelper;
 import com.zkt.zktspringjpa.security.service.CustomUserDetails;
 import com.zkt.zktspringjpa.security.service.CustomUserDetailsService;
@@ -28,7 +26,7 @@ import com.zkt.zktspringjpa.security.service.CustomUserDetailsService;
 public class AuthController {
 
     @Autowired
-    SystemUserRepository userRepository;
+    TableUserRepository userRepository;
 
     @Autowired
     private CustomUserDetailsService userDetailsService;

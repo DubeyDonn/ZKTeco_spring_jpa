@@ -20,7 +20,7 @@ import org.springframework.http.MediaType;
 @Component
 public class AuthEntryPoint implements AuthenticationEntryPoint {
 
-    private Logger logger = LoggerFactory.getLogger(AuthEntryPoint.class);
+    private final Logger logger = LoggerFactory.getLogger(AuthEntryPoint.class);
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,

@@ -2,13 +2,13 @@ package com.zkt.zktspringjpa.repository;
 
 import java.util.Optional;
 
+import com.zkt.zktspringjpa.model.TableUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.zkt.zktspringjpa.model.SystemUser;
+public interface TableUserRepository extends JpaRepository<TableUser, Long> {
 
-public interface SystemUserRepository extends JpaRepository<SystemUser, Long> {
 
-    Optional<SystemUser> findByUsername(String username);
+    Optional<TableUser> findByUsername(String username);
 
     Boolean existsByUsername(String username);
 

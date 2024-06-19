@@ -13,4 +13,5 @@ public class DailyAttendanceRecordDTO {
     private String name;
     private String checkInTime;
     private String checkOutTime;
+    private ShiftDTO shift;
 }

@@ -1,13 +1,6 @@
 package com.zkt.zktspringjpa.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,8 +15,9 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Table(name = "attendance_record")
-public class MyAttendanceRecord {
+public class TableAttendanceRecord {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,10 +35,10 @@ public class MyAttendanceRecord {
     private AttendanceStateEnum verifyState;
 
 
-    // Method to convert a single AttendanceRecord to MyAttendanceRecord
-    public static MyAttendanceRecord convertToModel(AttendanceRecord sdkRecord) {
+    // Method to convert a single AttendanceRecord to TableAttendanceRecord
+    public static TableAttendanceRecord convertToModel(AttendanceRecord sdkRecord) {
         // Implement the conversion logic here
-        MyAttendanceRecord modelRecord = new MyAttendanceRecord();
+        TableAttendanceRecord modelRecord = new TableAttendanceRecord();
 
         modelRecord.setUserSN(sdkRecord.getUserSN());
         modelRecord.setUserId(sdkRecord.getUserID());
@@ -56,9 +50,9 @@ public class MyAttendanceRecord {
     }
 
     // Method to convert the list
-    public static List<MyAttendanceRecord> convertList(List<AttendanceRecord> sdkRecords) {
+    public static List<TableAttendanceRecord> convertList(List<AttendanceRecord> sdkRecords) {
         return sdkRecords.stream()
-                .map(MyAttendanceRecord::convertToModel)
+                .map(TableAttendanceRecord::convertToModel)
                 .collect(Collectors.toList());
     }
 }

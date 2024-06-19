@@ -1,18 +1,12 @@
 package com.zkt.zktspringjpa.model;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-
-import org.springframework.security.core.GrantedAuthority;
 
 // import com.zkt.zktspringjpa.util.SystemUserRoleEnum;
 
@@ -20,8 +14,9 @@ import org.springframework.security.core.GrantedAuthority;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Table(name = "user")
-public class SystemUser {
+public class TableUser {
 
     @Id
     private Long id;

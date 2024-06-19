@@ -1,12 +1,12 @@
 package com.zkt.zktspringjpa.service;
 
-import com.zkt.zktspringjpa.model.MyAttendanceRecord;
-import com.zkt.zktspringjpa.model.MyUserInfo;
+import com.zkt.zktspringjpa.model.TableAttendanceRecord;
+import com.zkt.zktspringjpa.model.TableStaff;
+import com.zkt.zktspringjpa.sdk.commands.ZKCommandReply;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.zkt.zktspringjpa.sdk.Enum.CommandReplyCodeEnum;
-import com.zkt.zktspringjpa.sdk.commands.ZKCommandReply;
 import com.zkt.zktspringjpa.sdk.terminal.ZKTerminal;
 import com.zkt.zktspringjpa.util.Constants;
 
@@ -18,10 +18,10 @@ public class ZKTerminalService {
     private final ZKTerminal terminal;
 
     @Autowired
-    private MyAttendanceRecordService myAttendanceRecordService;
+    private TableAttendanceRecordService tableAttendanceRecordService;
 
     @Autowired
-    private UserInfoService userInfoService;
+    private TableStaffService tableStaffService;
 
     public ZKTerminalService() {
         this.terminal = new ZKTerminal(Constants.IP_ADDRESS, Constants.PORT);
@@ -29,9 +29,10 @@ public class ZKTerminalService {
 
     public void connect() throws Exception {
         try {
-            ZKCommandReply reply = terminal.connect();
+            ZKCommandReply connectReply = terminal.connect();
             System.out.println("Connected to terminal");
-            if (terminal.connectAuth(Constants.COM_KEY).getCode() == CommandReplyCodeEnum.CMD_ACK_OK) {
+            ZKCommandReply authReply = terminal.connectAuth(Constants.COM_KEY);
+            if (authReply.getCode() == CommandReplyCodeEnum.CMD_ACK_OK) {
                 System.out.println("Authenticated with terminal");
             } else {
                 throw new Exception("Authentication failed");
@@ -49,25 +50,34 @@ public class ZKTerminalService {
         terminal.disconnect();
     }
 
+//    public void forceDisconnect() {
+//        try{
+//            this.disconnect();
+//        }catch (Exception e) {
+//            System.out.println("Error disconnecting from terminal: " + e.getMessage());
+//        }
+//    }
+
     public void sync() throws Exception {
         this.connect();
-        userInfoService.insertMultipleUsers(this.getUsers());
+        tableStaffService.insertMultipleTableStaffs(this.getStaffsFromTerminal());
         this.disconnect();
+        Thread.sleep(1000);
         this.connect();
-        myAttendanceRecordService
-                .insertMultipleAttendanceRecords(this.getAttendanceRecords());
+        tableAttendanceRecordService
+                .insertMultipleTableAttendanceRecords(this.getAttendanceRecordsFromTerminal());
         this.disconnect();
     }
 
 
-    public List<MyAttendanceRecord> getAttendanceRecords() throws Exception {
+    public List<TableAttendanceRecord> getAttendanceRecordsFromTerminal() throws Exception {
         System.out.println("Getting attendance records from terminal");
-        return MyAttendanceRecord.convertList(terminal.getAttendanceRecords());
+        return TableAttendanceRecord.convertList(terminal.getAttendanceRecords());
     }
 
-    public List<MyUserInfo> getUsers() throws Exception {
+    public List<TableStaff> getStaffsFromTerminal() throws Exception {
         System.out.println("Getting users from terminal");
-        return MyUserInfo.convertList(terminal.getAllUsers());
+        return TableStaff.convertList(terminal.getAllUsers());
     }
 
 

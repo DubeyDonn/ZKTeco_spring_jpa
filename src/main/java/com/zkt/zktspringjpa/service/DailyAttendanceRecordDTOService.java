@@ -1,6 +1,6 @@
 package com.zkt.zktspringjpa.service;
 
-import com.zkt.zktspringjpa.model.dto.AttendanceRecordDTO;
+import com.zkt.zktspringjpa.model.dto.CustomizedAttendanceRecordDTO;
 import com.zkt.zktspringjpa.model.dto.DailyAttendanceRecordDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,45 +12,51 @@ import java.util.List;
 public class DailyAttendanceRecordDTOService {
 
     @Autowired
-    private AttendanceRecordDTOService attendanceRecordDTOService;
+    private CustomizedAttendanceRecordDTOService customizedAttendanceRecordDTOService;
 
     public DailyAttendanceRecordDTOService() {
     }
 
     public List<DailyAttendanceRecordDTO> getDailyAttendanceRecordDTOsForDateRange(String fromDate, String toDate) {
-        List<AttendanceRecordDTO> attendanceRecordDTOs = attendanceRecordDTOService.getAttendanceRecordDTOsForDateRange(fromDate, toDate);
+        List<CustomizedAttendanceRecordDTO> customizedAttendanceRecordDTOS = customizedAttendanceRecordDTOService.getCustomizedAttendanceRecordDTOsForDateRange(fromDate, toDate);
 
-        return this.buildDailyAttendanceRecordDTOsFromAttendanceRecordDTOs(attendanceRecordDTOs);
+        return this.buildDailyAttendanceRecordDTOsFromAttendanceRecordDTOs(customizedAttendanceRecordDTOS);
     }
 
     public List<DailyAttendanceRecordDTO> getDailyAttendanceRecordDTOsForDateRangeAndUserIds(String fromDate, String toDate, List<String> userIds) {
-        List<AttendanceRecordDTO> attendanceRecordDTOs = attendanceRecordDTOService.getAttendanceRecordDTOsForDateRangeAndUserIds(fromDate, toDate, userIds);
+        List<CustomizedAttendanceRecordDTO> customizedAttendanceRecordDTOS = customizedAttendanceRecordDTOService.getCustomizedAttendanceRecordDTOsForDateRangeAndUserIds(fromDate, toDate, userIds);
 
-        return this.buildDailyAttendanceRecordDTOsFromAttendanceRecordDTOs(attendanceRecordDTOs);
+        return this.buildDailyAttendanceRecordDTOsFromAttendanceRecordDTOs(customizedAttendanceRecordDTOS);
     }
 
-    public List<DailyAttendanceRecordDTO> buildDailyAttendanceRecordDTOsFromAttendanceRecordDTOs(List<AttendanceRecordDTO> attendanceRecordDTOs) {
+    public DailyAttendanceRecordDTO buildDailyAttendanceRecordDTOFromAttendanceRecordDTO(CustomizedAttendanceRecordDTO customizedAttendanceRecordDTO) {
+        DailyAttendanceRecordDTO dailyAttendanceRecordDTO = new DailyAttendanceRecordDTO();
+        dailyAttendanceRecordDTO.setDay(customizedAttendanceRecordDTO.getDay());
+        dailyAttendanceRecordDTO.setUserId(customizedAttendanceRecordDTO.getUserId());
+        dailyAttendanceRecordDTO.setName(customizedAttendanceRecordDTO.getUsername());
+        dailyAttendanceRecordDTO.setShift(customizedAttendanceRecordDTO.getShift());
+        //get first check in and last check out
+
+        if (!customizedAttendanceRecordDTO.getCheckInTime().isEmpty()) {
+            //get time only from 2024-06-07 08:59:53
+            String checkInTime = customizedAttendanceRecordDTO.getCheckInTime().get(0);
+            String[] checkInTimeArray = checkInTime.split(" ");
+            dailyAttendanceRecordDTO.setCheckInTime(checkInTimeArray[1]);
+        }
+        if (!customizedAttendanceRecordDTO.getCheckOutTime().isEmpty()) {
+            String checkOutTime = customizedAttendanceRecordDTO.getCheckOutTime().get(customizedAttendanceRecordDTO.getCheckOutTime().size() - 1);
+            String[] checkOutTimeArray = checkOutTime.split(" ");
+            dailyAttendanceRecordDTO.setCheckOutTime(checkOutTimeArray[1]);
+        }
+
+        return dailyAttendanceRecordDTO;
+    }
+
+    public List<DailyAttendanceRecordDTO> buildDailyAttendanceRecordDTOsFromAttendanceRecordDTOs(List<CustomizedAttendanceRecordDTO> customizedAttendanceRecordDTOS) {
         List<DailyAttendanceRecordDTO> dailyAttendanceRecordDTOs = new ArrayList<>();
 
-        for (AttendanceRecordDTO attendanceRecordDTO : attendanceRecordDTOs) {
-
-            DailyAttendanceRecordDTO dailyAttendanceRecordDTO = new DailyAttendanceRecordDTO();
-            dailyAttendanceRecordDTO.setDay(attendanceRecordDTO.getDay());
-            dailyAttendanceRecordDTO.setUserId(attendanceRecordDTO.getUserId());
-            dailyAttendanceRecordDTO.setName(attendanceRecordDTO.getUsername());
-            //get first check in and last check out
-
-            if (!attendanceRecordDTO.getCheckInTime().isEmpty()) {
-                //get time only from 2024-06-07 08:59:53
-                String checkInTime = attendanceRecordDTO.getCheckInTime().get(0);
-                String[] checkInTimeArray = checkInTime.split(" ");
-                dailyAttendanceRecordDTO.setCheckInTime(checkInTimeArray[1]);
-            }
-            if (!attendanceRecordDTO.getCheckOutTime().isEmpty()) {
-                String checkOutTime = attendanceRecordDTO.getCheckOutTime().get(attendanceRecordDTO.getCheckOutTime().size() - 1);
-                String[] checkOutTimeArray = checkOutTime.split(" ");
-                dailyAttendanceRecordDTO.setCheckOutTime(checkOutTimeArray[1]);
-            }
+        for (CustomizedAttendanceRecordDTO customizedAttendanceRecordDTO : customizedAttendanceRecordDTOS) {
+            DailyAttendanceRecordDTO dailyAttendanceRecordDTO = this.buildDailyAttendanceRecordDTOFromAttendanceRecordDTO(customizedAttendanceRecordDTO);
             dailyAttendanceRecordDTOs.add(dailyAttendanceRecordDTO);
         }
 

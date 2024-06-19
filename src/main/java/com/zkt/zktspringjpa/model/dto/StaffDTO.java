@@ -1,5 +1,6 @@
 package com.zkt.zktspringjpa.model.dto;
 
+import com.zkt.zktspringjpa.model.TableShift;
 import lombok.*;
 
 @Getter
@@ -7,7 +8,8 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class EmployeeDTO {
+public class StaffDTO {
     private String id;
     private String name;
+    private TableShift shift;
 }
